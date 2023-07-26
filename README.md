@@ -9,5 +9,6 @@
 - [ ] add google analytics? if possible?
 - [x] add text-to-speech (docs)[!https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis]
 - [ ] make tts match type speed
+- [ ] add sound on/sound off togge 
 - [ ] improve typing animation?
 - [ ] add custom domain? or am i too cheap
