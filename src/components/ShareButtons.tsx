@@ -7,6 +7,8 @@ import {
   TwitterIcon,
   TwitterShareButton,
 } from "react-share";
+import LinkIcon from "./LinkIcon";
+import AppInfoUtils from "@/utils/appinfo";
 
 const FILL_COLORS = {
   DARK: {
@@ -20,14 +22,18 @@ const FILL_COLORS = {
 };
 
 interface IShareButtonsProps {
-  title: string;
-  source: string;
+  jokeId?: number;
 }
 
-const ShareButtons: React.FC<IShareButtonsProps> = ({ title, source }) => {
+const ShareButtons: React.FC<IShareButtonsProps> = ({ jokeId }) => {
   const [isLightMode, setIsLightMode] = useState<boolean>(true);
 
+  const source = `${AppInfoUtils.URL}/${!!jokeId ? `?jokeId=${jokeId}` : ""}`;
+
   useEffect(() => {
+    /**
+     * try to match color preferences for share buttons
+     */
     if (typeof window !== "undefined") {
       const lightModePreference = window.matchMedia(
         "(prefers-color-scheme: light)"
@@ -49,12 +55,17 @@ const ShareButtons: React.FC<IShareButtonsProps> = ({ title, source }) => {
   }, []);
 
   const copyToClipboard = () => {
+    /**
+     * copy source to users clipboard
+     */
     navigator.clipboard.writeText(source);
   };
 
   return (
     <div className="shareButtonContainer">
-      <TwitterShareButton {...({ title: `${title} ${source}` } as any)}>
+      <TwitterShareButton
+        {...({ title: `${AppInfoUtils.TITLE} ${source}` } as any)}
+      >
         <TwitterIcon
           size={32}
           bgStyle={{
@@ -69,7 +80,9 @@ const ShareButtons: React.FC<IShareButtonsProps> = ({ title, source }) => {
           }
         />
       </TwitterShareButton>
-      <LinkedinShareButton {...({ title: title, source: source } as any)}>
+      <LinkedinShareButton
+        {...({ title: AppInfoUtils.TITLE, source: source } as any)}
+      >
         <LinkedinIcon
           size={32}
           bgStyle={{
@@ -84,7 +97,9 @@ const ShareButtons: React.FC<IShareButtonsProps> = ({ title, source }) => {
           }
         />
       </LinkedinShareButton>
-      <RedditShareButton {...({ title: title, source: source } as any)}>
+      <RedditShareButton
+        {...({ title: AppInfoUtils.TITLE, source: source } as any)}
+      >
         <RedditIcon
           size={32}
           bgStyle={{
@@ -100,7 +115,7 @@ const ShareButtons: React.FC<IShareButtonsProps> = ({ title, source }) => {
         />
       </RedditShareButton>
       <button className="shareLinkButton" onClick={copyToClipboard}>
-        L
+        <LinkIcon className="shareLinkButtonIcon" />
       </button>
     </div>
   );

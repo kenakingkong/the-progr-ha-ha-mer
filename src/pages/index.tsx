@@ -1,73 +1,35 @@
-import Head from "next/head";
+import { useCallback, useEffect, useState } from "react";
 import { Anonymous_Pro } from "next/font/google";
-import { useEffect, useState } from "react";
+import classNames from "classnames";
+import AppHead from "@/components/AppHead";
 import ShareButtons from "@/components/ShareButtons";
+import JokeApiUtils from "@/utils/jokeapi";
+import AppInfoUtils from "@/utils/appinfo";
 
 const apFont = Anonymous_Pro({ weight: ["400", "700"], subsets: ["latin"] });
 
-interface IJokeApiPayload {
-  error: boolean;
-  category: "Programming";
-  type: "single" | "twopart";
-  joke?: string;
-  setup?: string;
-  delivery?: string;
-  flags: {
-    nsfw: boolean;
-    religious: boolean;
-    political: boolean;
-    racist: boolean;
-    sexist: boolean;
-    explicit: boolean;
-  };
-  id: number;
-  safe: true;
-  lang: "en";
-}
-
 export default function Home() {
+  // joking is live
   const [isJoking, setIsJoking] = useState<boolean>(false);
-  const [currJoke, setCurrJoke] = useState<IJokeApiPayload | null>(null);
+
+  //ready for next joke
   const [ready, setReady] = useState<boolean>(false);
 
-  const TITLE = "THE PROGR-HA-HA-MER";
+  // current joke payload from Jokes API
+  const [currJoke, setCurrJoke] = useState<JokeApiUtils.IJokeApiPayload | null>(
+    null
+  );
 
-  const ERR_MESSAGE = "Oops - couldn't find a joke";
+  const getJoke = useCallback((jokeId?: string) => {
+    /**
+     * fetches the joke via jokes api
+     */
 
-  const TYPE_SINGLE = "single";
-  const TYPE_TWOPART = "twopart";
-
-  const TYPING_SPEED = 60;
-
-  const API_URL =
-    "https://v2.jokeapi.dev/joke/Programming?blacklistFlags=nsfw,religious,political,racist,sexist,explicit";
-  const API_ID_SEARCH = "&idRange=";
-
-  const parseJokePayload = (payload: IJokeApiPayload): string => {
-    if (payload.error) {
-      // throw error
-      return ERR_MESSAGE;
+    if (isJoking && !!currJoke && !ready) {
+      return; // already in the process
     }
-    if (payload.type === TYPE_SINGLE && !!payload.joke) {
-      return payload.joke;
-    } else if (
-      payload.type === TYPE_TWOPART &&
-      !!payload.setup &&
-      !!payload.delivery
-    ) {
-      return `${payload.setup}\n\n${payload.delivery}`;
-    } else {
-      return ERR_MESSAGE;
-    }
-  };
 
-  const getShareLink = () => {
-    return `https://kenakingkong.github.io/the-progr-ha-ha-mer${
-      currJoke ? `?jokeId=${currJoke.id}` : ""
-    }`;
-  };
-
-  const getJoke = (jokeId?: string) => {
+    // make app state ready to receive new joke
     setIsJoking(true);
     setCurrJoke(null);
     setReady(false);
@@ -75,19 +37,24 @@ export default function Home() {
     let el = document.querySelector("#joke");
     if (el) el.innerHTML = "";
 
-    let endpoint = `${API_URL}${jokeId ? `${API_ID_SEARCH}${jokeId}` : ""}`;
+    let endpoint = JokeApiUtils.buildEndpoint(jokeId);
     fetch(endpoint)
       .then((res: any) => res.json())
-      .then((res: IJokeApiPayload) => setCurrJoke(res))
-      .catch((err: any) => {
-        // handle error?
-        setCurrJoke(null);
-      });
-  };
+      .then((res: JokeApiUtils.IJokeApiPayload) => setCurrJoke(res))
+      .catch((err: any) => setCurrJoke(null));
+  }, []);
 
   useEffect(() => {
+    /**
+     * type out joke animation
+     */
+    const synth = window.speechSynthesis;
+    const speakingSpeed = 0.78;
+    const typingSpeed = 70;
+
     let i = 0;
-    let joke = currJoke && parseJokePayload(currJoke);
+    let joke = currJoke && JokeApiUtils.parseJokePayload(currJoke);
+    let timeouts: NodeJS.Timeout[] = [];
 
     const typeItOut = (joke: string) => {
       let el = document.querySelector("#joke");
@@ -95,64 +62,96 @@ export default function Home() {
       if (i < joke.length) {
         el.innerHTML += joke.charAt(i);
         i++;
-        setTimeout(() => typeItOut(joke), TYPING_SPEED);
+        let timeout = setTimeout(() => typeItOut(joke), typingSpeed);
+        timeouts.push(timeout);
       } else {
         setReady(true);
       }
     };
 
+    const speak = (joke: string) => {
+      if (synth.speaking) {
+        synth.cancel();
+      }
+      let utterance = new SpeechSynthesisUtterance(joke);
+      utterance.rate = speakingSpeed;
+      speechSynthesis.speak(utterance);
+    };
+
     if (isJoking && !ready && joke) {
       typeItOut(joke);
+      speak(joke);
     }
+
+    return () => {
+      timeouts.forEach((t) => window.clearTimeout(t));
+    };
   }, [isJoking, ready, currJoke]);
 
   useEffect(() => {
+    /**
+     * grab joke by query string (if any)
+     */
     const queryString = window.location.search;
     const urlParams = new URLSearchParams(queryString);
     let jokeId = urlParams.get("jokeId");
-    if (jokeId) {
+
+    if (!!jokeId) {
       getJoke(jokeId);
     }
-  }, []);
+  }, [getJoke]);
 
   return (
     <>
-      <Head>
-        <title>{TITLE}</title>
-        <meta name="description" content="MAKE ME LAUGH" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
+      {/* app head */}
+      <AppHead />
+
       <main className={apFont.className}>
+        {/* app header */}
         <div
-          className={`headerContainer ${
-            isJoking ? "headerContainerActive" : ""
-          }`}
+          className={classNames(
+            "headerContainer",
+            isJoking && "headerContainerActive"
+          )}
         >
-          <h1>{TITLE}</h1>
+          <h1>{AppInfoUtils.TITLE}</h1>
         </div>
+
+        {/* play joke */}
         {isJoking && (
           <div
-            className={`jokeContainer ${isJoking ? "jokeContainerActive" : ""}`}
+            className={classNames(
+              "jokeContainer",
+              isJoking && "jokeContainerActive"
+            )}
           >
             <p id="joke" className="joke"></p>
           </div>
         )}
+
+        {/* get new joke */}
         <div
-          className={`mainButtonContainer ${
-            isJoking ? "mainButtonContainerInactive" : ""
-          } ${ready ? "mainButtonContainerActive" : ""}`}
+          className={classNames(
+            "mainButtonContainer",
+            isJoking && "mainButtonContainerInactive",
+            ready && "mainButtonContainerActive"
+          )}
         >
           <button className="mainButton" onClick={() => getJoke()}>
             MAKE ME LAUGH {isJoking ? "AGAIN" : ""}
           </button>
         </div>
+
+        {/* share joke */}
         {isJoking && (
           <div
-            className={`shareContainer ${ready ? "shareContainerActive" : ""}`}
+            className={classNames(
+              "shareContainer",
+              ready && "shareContainerActive"
+            )}
           >
             <p>OR, MAKE SOMEONE ELSE LAUGH</p>
-            <ShareButtons title={TITLE} source={getShareLink()} />
+            <ShareButtons jokeId={currJoke?.id} />
           </div>
         )}
       </main>

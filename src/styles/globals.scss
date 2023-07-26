@@ -85,6 +85,7 @@ main {
 }
 
 .joke {
+  width: 100%;
   font-size: large;
   line-height: 150%;
 
@@ -186,9 +187,17 @@ main {
     border: none;
     background-color: var(--bd-color);
     color: var(--bg-color);
+    cursor: pointer;
+
+    &Icon {
+      height: 100%;
+      width: 15px;
+      margin-top: -2px;
+      fill: var(--txt-color);
+    }
 
     &:hover {
-      opacity: 0.8
+      opacity: 0.8;
     }
   }
 }
