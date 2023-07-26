@@ -1,0 +1,200 @@
+:root {
+  --bg-color: #ffffff;
+  --txt-color: #000000;
+  --bd-color: #000000;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg-color: #2a2a2a;
+    --txt-color: #f156ff;
+    --bd-color: #f156ff;
+  }
+}
+
+@mixin transitionAll() {
+  transition-property: all;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 150ms;
+}
+
+@keyframes typing {
+  from {
+    width: 0;
+  }
+  to {
+    width: 100%;
+  }
+}
+
+@keyframes cursor {
+  from,
+  to {
+    border-color: transparent;
+  }
+  50% {
+    border-color: orange;
+  }
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  position: relative;
+
+  width: 500px;
+  height: 100vh;
+  max-width: 100%;
+  max-height: 100%;
+
+  margin-left: auto;
+  margin-right: auto;
+
+  padding: 2rem;
+
+  overflow: hidden;
+
+  color: var(--txt-color);
+  background: var(--bg-color);
+}
+
+main {
+  width: 100%;
+}
+
+.header {
+  &Container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate3d(-50%, 40vh, 0);
+    transform-style: preserve-3d;
+
+    height: auto;
+    width: max-content;
+
+    @include transitionAll();
+
+    &Active {
+      transform: translate3d(-50%, 5vh, 0);
+    }
+  }
+}
+
+.joke {
+  font-size: large;
+  line-height: 150%;
+
+  &Container {
+    @include transitionAll();
+
+    position: absolute;
+    top: 40vh;
+
+    width: 80%;
+    height: 0%;
+
+    transition-delay: 500ms;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 4rem;
+  }
+}
+
+.mainButton {
+  border: 2px solid var(--bd-color);
+  border-radius: 2px;
+  padding: 10px 20px;
+  background: var(--bg-color);
+  color: var(--txt-color);
+  font-weight: bold;
+  font-size: large;
+  cursor: pointer;
+
+  transform: translate3d(0, 0, 0);
+
+  @include transitionAll();
+  transform-style: preserve-3d;
+
+  &Container {
+    @include transitionAll();
+
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate3d(-50%, 50vh, 0);
+
+    background-color: var(--bd-color);
+    border-radius: 2px;
+    width: max-content;
+
+    &Inactive {
+      height: 0;
+      opacity: 0;
+
+      transform: translate3d(-50%, 70vh, 0);
+    }
+
+    &Active {
+      opacity: 1;
+      transform: translate3d(-50%, 70vh, 0);
+    }
+  }
+
+  &:hover {
+    transform: translate3d(-2px, -2px, 0);
+  }
+}
+
+.share {
+  &Container {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    transform: translate3d(-50%, 80vh, 0);
+
+    width: 80%;
+    font-size: large;
+    font-weight: bold;
+    text-align: center;
+
+    opacity: 0;
+
+    @include transitionAll();
+
+    &Active {
+      opacity: 1;
+    }
+  }
+
+  &ButtonContainer {
+    margin-top: 1rem;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+  }
+
+  &LinkButton {
+    height: 32px;
+    width: 32px;
+    border: none;
+    background-color: var(--bd-color);
+    color: var(--bg-color);
+
+    &:hover {
+      opacity: 0.8
+    }
+  }
+}
+
+@media (prefers-color-scheme: dark) {
+  html {
+    color-scheme: dark;
+  }
+}
