@@ -1,120 +1,61 @@
-import { useEffect, useState } from "react";
-import {
-  LinkedinIcon,
-  LinkedinShareButton,
-  RedditIcon,
-  RedditShareButton,
-  TwitterIcon,
-  TwitterShareButton,
-} from "react-share";
-import LinkIcon from "./LinkIcon";
 import AppInfoUtils from "@/utils/appinfo";
-
-const FILL_COLORS = {
-  DARK: {
-    BG_FILL: "#f156ff",
-    ICON_FILL: "#2a2a2a",
-  },
-  LIGHT: {
-    BG_FILL: "#000000",
-    ICON_FILL: "#ffffff",
-  },
-};
+import { LinkedInIcon, LinkIcon, RedditIcon, TwitterIcon } from "./icons";
+import copyToClipboard from "@/utils/copyToClipboard";
 
 interface IShareButtonsProps {
+  joke?: string;
   jokeId?: number;
 }
 
-const ShareButtons: React.FC<IShareButtonsProps> = ({ jokeId }) => {
-  const [isLightMode, setIsLightMode] = useState<boolean>(true);
-
-  const source = `${AppInfoUtils.URL}/${!!jokeId ? `?jokeId=${jokeId}` : ""}`;
-
-  useEffect(() => {
+const ShareButtons: React.FC<IShareButtonsProps> = ({ joke, jokeId }) => {
+  const getJokePreview = () => {
     /**
-     * try to match color preferences for share buttons
+     * get nothing, the first sentence of joke (limit 100 chars) or first 100 chars of joke
      */
-    if (typeof window !== "undefined") {
-      const lightModePreference = window.matchMedia(
-        "(prefers-color-scheme: light)"
-      );
+    if (!joke) return "";
 
-      setIsLightMode(
-        window.matchMedia("(prefers-color-scheme: light)").matches
-      );
+    const jokeList = joke?.replace(/([.?!])\s*(?=[A-Z])/g, "$1|").split("|");
+    return `${
+      jokeList.length > 1 ? jokeList[0].slice(0, 100) : joke.slice(0, 100)
+    }%0A%0A`;
+  };
 
-      lightModePreference.addEventListener(
-        "change",
-        (e) =>
-          e.matches &&
-          setIsLightMode(
-            window.matchMedia("(prefers-color-scheme: light)").matches
-          )
-      );
-    }
-  }, []);
+  const source = `${AppInfoUtils.URL}${!!jokeId ? `?jokeId=${jokeId}` : ""}`;
+  const jokePreview = getJokePreview();
 
-  const copyToClipboard = () => {
-    /**
-     * copy source to users clipboard
-     */
-    navigator.clipboard.writeText(source);
+  const anchorProps = {
+    target: "_blank",
+    className: "shareLinkButton",
   };
 
   return (
     <div className="shareButtonContainer">
-      <TwitterShareButton
-        {...({ title: `${AppInfoUtils.TITLE} ${source}` } as any)}
+      {/* twitter */}
+      <a
+        href={`https://twitter.com/intent/tweet?text=${jokePreview}${source}`}
+        {...anchorProps}
       >
-        <TwitterIcon
-          size={32}
-          bgStyle={{
-            fill: isLightMode
-              ? FILL_COLORS.LIGHT.BG_FILL
-              : FILL_COLORS.DARK.BG_FILL,
-          }}
-          iconFillColor={
-            isLightMode
-              ? FILL_COLORS.LIGHT.ICON_FILL
-              : FILL_COLORS.DARK.ICON_FILL
-          }
-        />
-      </TwitterShareButton>
-      <LinkedinShareButton
-        {...({ title: AppInfoUtils.TITLE, source: source } as any)}
+        <TwitterIcon />
+      </a>
+
+      {/* linkedin */}
+      <a
+        href={`https://www.linkedin.com/sharing/share-offsite/?url=${source}`}
+        {...anchorProps}
       >
-        <LinkedinIcon
-          size={32}
-          bgStyle={{
-            fill: isLightMode
-              ? FILL_COLORS.LIGHT.BG_FILL
-              : FILL_COLORS.DARK.BG_FILL,
-          }}
-          iconFillColor={
-            isLightMode
-              ? FILL_COLORS.LIGHT.ICON_FILL
-              : FILL_COLORS.DARK.ICON_FILL
-          }
-        />
-      </LinkedinShareButton>
-      <RedditShareButton
-        {...({ title: AppInfoUtils.TITLE, source: source } as any)}
+        <LinkedInIcon />
+      </a>
+
+      {/* reddit */}
+      <a href={`https://reddit.com/submit?url=${source}`} {...anchorProps}>
+        <RedditIcon />
+      </a>
+
+      {/* clipboard */}
+      <button
+        className="shareLinkButton"
+        onClick={() => copyToClipboard(source)}
       >
-        <RedditIcon
-          size={32}
-          bgStyle={{
-            fill: isLightMode
-              ? FILL_COLORS.LIGHT.BG_FILL
-              : FILL_COLORS.DARK.BG_FILL,
-          }}
-          iconFillColor={
-            isLightMode
-              ? FILL_COLORS.LIGHT.ICON_FILL
-              : FILL_COLORS.DARK.ICON_FILL
-          }
-        />
-      </RedditShareButton>
-      <button className="shareLinkButton" onClick={copyToClipboard}>
         <LinkIcon className="shareLinkButtonIcon" />
       </button>
     </div>

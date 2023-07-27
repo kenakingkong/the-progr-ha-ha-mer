@@ -12,6 +12,40 @@
   }
 }
 
+@mixin animate(
+  $name,
+  $duration,
+  $timing-function: ease,
+  $delay: 0s,
+  $iteration-count: 1,
+  $direction: normal,
+  $fill-mode: none
+) {
+  -webkit-animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+  -moz-animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+  -ms-animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+  -o-animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+  animation: $name $duration $timing-function $delay $iteration-count $direction $fill-mode;
+}
+
+@mixin keyframes($animation-name) {
+  @-webkit-keyframes #{$animation-name} {
+    @content;
+  }
+  @-moz-keyframes #{$animation-name} {
+    @content;
+  }
+  @-ms-keyframes #{$animation-name} {
+    @content;
+  }
+  @-o-keyframes #{$animation-name} {
+    @content;
+  }
+  @keyframes #{$animation-name} {
+    @content;
+  }
+}
+
 @mixin transitionAll() {
   transition-property: all;
   transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
@@ -58,7 +92,7 @@ body {
   overflow: hidden;
 
   color: var(--txt-color);
-  background: var(--bg-color);
+  background-color: var(--bg-color);
 }
 
 main {
@@ -81,6 +115,27 @@ main {
     &Active {
       transform: translate3d(-50%, 5vh, 0);
     }
+
+    &:hover {
+      .headerLink {
+        opacity: 1;
+      }
+    }
+  }
+
+  &Link {
+    @include transitionAll();
+    display: block;
+    width: max-content;
+    margin-left: auto;
+    margin-right: auto;
+    opacity: 0;
+
+    &Icon {
+      height: 100%;
+      width: 15px;
+      color: var(--txt-color);
+    }
   }
 }
 
@@ -88,6 +143,7 @@ main {
   width: 100%;
   font-size: large;
   line-height: 150%;
+  text-align: center;
 
   &Container {
     @include transitionAll();
@@ -109,47 +165,44 @@ main {
 }
 
 .mainButton {
+  @include transitionAll();
+
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate3d(-50%, 50vh, 0);
+  transform-style: preserve-3d;
+
+  width: max-content;
+  height: auto;
+
   border: 2px solid var(--bd-color);
   border-radius: 2px;
   padding: 10px 20px;
-  background: var(--bg-color);
+
+  background-color: var(--bg-color);
   color: var(--txt-color);
+
   font-weight: bold;
   font-size: large;
+
   cursor: pointer;
 
-  transform: translate3d(0, 0, 0);
+  &Inactive {
+    height: 0;
+    opacity: 0;
+    transform: translate3d(-50%, 90vh, 0);
+  }
 
-  @include transitionAll();
-  transform-style: preserve-3d;
-
-  &Container {
-    @include transitionAll();
-
-    position: absolute;
-    top: 0;
-    left: 50%;
-    transform: translate3d(-50%, 50vh, 0);
-
-    background-color: var(--bd-color);
-    border-radius: 2px;
-    width: max-content;
-
-    &Inactive {
-      height: 0;
-      opacity: 0;
-
-      transform: translate3d(-50%, 70vh, 0);
-    }
-
-    &Active {
-      opacity: 1;
-      transform: translate3d(-50%, 70vh, 0);
-    }
+  &Active {
+    height: auto;
+    opacity: 1;
+    transform: translate3d(-50%, 90vh, 0);
   }
 
   &:hover {
-    transform: translate3d(-2px, -2px, 0);
+    background-color: var(--txt-color);
+    color: var(--bg-color);
   }
 }
 
@@ -158,7 +211,7 @@ main {
     position: absolute;
     top: 0;
     left: 50%;
-    transform: translate3d(-50%, 80vh, 0);
+    transform: translate3d(-50%, 70vh, 0);
 
     width: 80%;
     font-size: large;

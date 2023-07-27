@@ -1,4 +1,7 @@
-const LinkIcon: React.FC<React.SVGProps<SVGElement>> = ({ ref, ...props }) => (
+export const LinkIcon: React.FC<React.SVGProps<SVGElement>> = ({
+  ref,
+  ...props
+}) => (
   <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 -144 1008 1008" {...props}>
     <path
       fill="currentColor"
@@ -6,4 +9,3 @@ const LinkIcon: React.FC<React.SVGProps<SVGElement>> = ({ ref, ...props }) => (
     />
   </svg>
 );
-export default LinkIcon;

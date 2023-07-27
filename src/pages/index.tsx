@@ -5,6 +5,7 @@ import AppHead from "@/components/AppHead";
 import ShareButtons from "@/components/ShareButtons";
 import JokeApiUtils from "@/utils/jokeapi";
 import AppInfoUtils from "@/utils/appinfo";
+import { LinkIcon } from "@/components/icons";
 
 const apFont = Anonymous_Pro({ weight: ["400", "700"], subsets: ["latin"] });
 
@@ -96,10 +97,10 @@ export default function Home() {
     const urlParams = new URLSearchParams(queryString);
     let jokeId = urlParams.get("jokeId");
 
-    if (!!jokeId) {
+    if (!!jokeId && !isJoking) {
       getJoke(jokeId);
     }
-  }, [getJoke]);
+  }, [getJoke, isJoking]);
 
   return (
     <>
@@ -114,7 +115,14 @@ export default function Home() {
             isJoking && "headerContainerActive"
           )}
         >
-          <h1>{AppInfoUtils.TITLE}</h1>
+          <h1>{AppInfoUtils.TITLE} </h1>{" "}
+          <a
+            href="https://github.com/kenakingkong/the-progr-ha-ha-mer"
+            target="_blank"
+            className="headerLink"
+          >
+            <LinkIcon className="headerLinkIcon" />
+          </a>
         </div>
 
         {/* play joke */}
@@ -130,17 +138,16 @@ export default function Home() {
         )}
 
         {/* get new joke */}
-        <div
+        <button
           className={classNames(
-            "mainButtonContainer",
-            isJoking && "mainButtonContainerInactive",
-            ready && "mainButtonContainerActive"
+            "mainButton",
+            isJoking && "mainButtonInactive",
+            ready && "mainButtonActive"
           )}
+          onClick={() => getJoke()}
         >
-          <button className="mainButton" onClick={() => getJoke()}>
-            MAKE ME LAUGH {isJoking ? "AGAIN" : ""}
-          </button>
-        </div>
+          MAKE ME LAUGH {isJoking ? "AGAIN" : ""}
+        </button>
 
         {/* share joke */}
         {isJoking && (
@@ -150,8 +157,13 @@ export default function Home() {
               ready && "shareContainerActive"
             )}
           >
-            <p>OR, MAKE SOMEONE ELSE LAUGH</p>
-            <ShareButtons jokeId={currJoke?.id} />
+            <p>MAKE SOMEONE ELSE LAUGH</p>
+            <ShareButtons
+              joke={
+                currJoke ? JokeApiUtils.parseJokePayload(currJoke) : undefined
+              }
+              jokeId={currJoke?.id}
+            />
           </div>
         )}
       </main>
