@@ -150,17 +150,17 @@ main {
 
     position: absolute;
     top: 40vh;
+    left: 50%;
+    transform: translatex(-50%);
 
     width: 80%;
     height: 0%;
 
-    transition-delay: 500ms;
-
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
-    gap: 4rem;
+
+    transition-delay: 500ms;
   }
 }
 
