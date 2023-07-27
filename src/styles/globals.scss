@@ -247,6 +247,14 @@ main {
       width: 15px;
       margin-top: -2px;
       fill: var(--txt-color);
+
+      &IconFill {
+        fill: var(--bg-color);
+      }
+
+      &BgFill {
+        fill: var(--txt-color);
+      }
     }
 
     &:hover {
